@@ -528,3 +528,365 @@ Neste exemplo:
 - **example** é o nome local do data source, que é usado para referenciar os dados obtidos em outras partes da configuração.
 
 - Os parâmetros **most_recent**, **filter** e **owners** definem as condições de busca da AMI.
+
+# Componentes do Bloco Data Source
+
+1. **Tipo do Data Source**
+
+O tipo do data source especifica qual serviço ou recurso será consultado. No exemplo acima, aws_ami indica que estamos buscando informações sobre AMIs na AWS.
+
+2. **Nome Local**
+
+O nome local é um identificador arbitrário usado para referenciar o data source dentro da configuração do Terraform. Deve ser único dentro do arquivo.
+
+3. **Parâmetros**
+
+Os parâmetros são as condições específicas usadas para buscar os dados. Eles variam dependendo do tipo do data source e podem incluir filtros, IDs, nomes, entre outros critérios.
+
+# Uso de Data Sources
+
+Os data sources são frequentemente usados em conjunto com recursos para configurar recursos com base em informações existentes. Por exemplo, você pode usar um data source para obter a ID de uma AMI e depois usar essa ID para criar uma instância EC2.
+
+# Exemplo Completo
+
+Aqui está um exemplo completo que utiliza um data source para obter a ID de uma AMI e usá-la para criar uma instância EC2:
+
+    # Data Source para obter a AMI mais recente
+    data "aws_ami" "example" {
+        most_recent = true
+
+        filter {
+            name   = "name"
+            values = ["amzn-ami-hvm-*"]
+        }
+
+        filter {
+            name   = "virtualization-type"
+            values = ["hvm"]
+        }
+
+        owners = ["self"]
+    }
+
+    # Recurso que utiliza a AMI obtida pelo Data Source
+    resource "aws_instance" "example" {
+        ami           = data.aws_ami.example.id
+        instance_type = "t2.micro"
+
+        tags = {
+            Name = "example-instance"
+        }
+    }
+
+# Componentes Adicionais
+
+**Interpolação de Valores**
+
+Você pode interpolar valores obtidos de data sources em outros blocos, como recursos, outputs, ou variáveis.
+
+    output "ami_id" {
+        value = data.aws_ami.example.id
+    }
+
+**Filtros e Condições**
+
+Os filtros e condições permitem restringir os resultados obtidos pelo data source. Isso garante que você obtenha exatamente as informações necessárias.
+
+    data "aws_ami" "example" {
+        most_recent = true
+
+        filter {
+            name   = "name"
+            values = ["amzn-ami-hvm-*"]
+        }
+
+        filter {
+            name   = "virtualization-type"
+            values = ["hvm"]
+        }
+
+        owners = ["self"]
+    }
+
+# Benefícios dos Data Sources
+
+- **Reutilização de Recursos Existentes**: Permitem utilizar informações de recursos existentes, evitando a duplicação e facilitando a integração com infraestrutura já existente.
+
+- **Atualizações Dinâmicas**: As informações obtidas dos data sources são dinâmicas, garantindo que você sempre obtenha os dados mais atualizados conforme definido nos filtros e condições.
+
+- **Redução de Código Duplicado**: Centraliza a obtenção de informações, reduzindo a necessidade de definir repetidamente os mesmos parâmetros em diferentes partes da configuração.
+
+# Conclusão
+Os data sources são uma ferramenta poderosa no Terraform para integrar dados externos na configuração de infraestrutura. Eles permitem obter informações atualizadas sobre recursos existentes e utilizá-las de maneira eficiente e flexível. Entender e utilizar data sources adequadamente pode melhorar significativamente a capacidade de gerenciar e integrar infraestruturas complexas com o Terraform.#
+
+    data "digitalocean_ssh_key""minha_chave"{
+        name="aula"
+    }
+
+# Variables no Terraform
+
+As **variáveis** no Terraform são utilizadas para tornar as configurações mais dinâmicas e reutilizáveis. Elas permitem a parametrização dos arquivos de configuração, facilitando a personalização e a flexibilidade sem a necessidade de modificar diretamente o código do Terraform.
+
+# Tipos de Variáveis
+
+Existem três tipos principais de variáveis no Terraform:
+
+1. **Input Variables**: Para definir valores que podem ser passados para a configuração do Terraform.
+
+2. **Local Values (Locals)**: Para definir valores reutilizáveis dentro do mesmo módulo.
+
+3. **Output Values**: Para exportar valores após a execução do Terraform.
+
+# Input Variables
+
+As Input Variables são usadas para parametrizar a configuração do Terraform, permitindo a entrada de valores dinâmicos. Elas são definidas usando o bloco variable.
+
+**Exemplo de Definição de Variável**
+
+    variable "instance_type" {
+        description = "Tipo da instância EC2"
+        type        = string
+        default     = "t2.micro"
+    }
+
+Neste exemplo:
+
+- **instance_type** é o nome da variável.
+
+- **description** é uma descrição opcional que explica o propósito da variável.
+
+- **type** define o tipo de dado da variável (string, number, bool, list, map, etc.).
+
+- **default** é o valor padrão da variável.
+
+# Usando Variáveis
+
+As variáveis são referenciadas usando a sintaxe **${var.nome_da_variavel}** ou a notação curta **var.nome_da_variavel**.
+
+    resource "aws_instance" "example" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = var.instance_type
+    }
+
+# Tipos de Dados das Variáveis
+
+1. **String**: Um valor de texto.
+
+2. **Number**: Um valor numérico.
+
+3. **Bool**: Um valor booleano (true ou false).
+
+4. **List**: Uma lista de valores.
+
+5. **Map**: Um mapa de chave-valor.
+
+6. **Object**: Um objeto complexo com múltiplos atributos.
+
+7. **Tuple**: Uma lista de valores heterogêneos.
+
+**Exemplo de Variáveis de Diferentes Tipos**
+
+    variable "image_id" {
+        type = string
+    }
+
+    variable "instance_count" {
+        type = number
+    }
+
+    variable "enable_monitoring" {
+        type = bool
+    }
+
+    variable "instance_types" {
+        type = list(string)
+    }
+
+    variable "tags" {
+        type = map(string)
+    }
+
+    variable "database" {
+        type = object({
+            engine  = string
+            version = string
+        })
+    }
+
+    variable "settings" {
+        type = tuple([string, number, bool])
+    }
+
+# Fornecendo Valores para Variáveis
+
+Há várias maneiras de fornecer valores para as variáveis:
+
+1. **Arquivo terraform.tfvars**: Um arquivo de valores de variáveis.
+
+    instance_type = "t3.medium"
+
+2. **Arquivo .auto.tfvars**: Arquivos automaticamente carregados pelo Terraform.
+
+    custom.auto.tfvars
+
+3. **Linha de Comando**: Usando a opção -var.
+
+    terraform apply -var="instance_type=t3.medium"
+
+4. **Variáveis de Ambiente**: Prefixadas com **TF_VAR_**.
+
+    export TF_VAR_instance_type="t3.medium"
+
+5. **Bloco variable Defaults**: Usando valores padrão no próprio bloco variable.
+
+# Local Values (Locals)
+
+**Local Values** são valores definidos localmente dentro de um módulo para evitar repetição e simplificar a configuração.
+
+**Exemplo de Definição de Locais**
+
+    locals {
+        common_tags = {
+            environment = "production"
+            team        = "devops"
+        }
+    }
+
+    resource "aws_instance" "example" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+
+        tags = local.common_tags
+    }
+
+# Output Values
+
+**Output Values** são usados para exportar valores após a execução do Terraform, permitindo que outros módulos ou a própria equipe visualizem informações úteis sobre a infraestrutura provisionada.
+
+**Exemplo de Definição de Outputs**
+
+    output "instance_id" {
+        value = aws_instance.example.id
+    }
+
+    output "instance_public_ip" {
+        value = aws_instance.example.public_ip
+    }
+
+# Conclusão
+
+As variáveis no Terraform são essenciais para criar configurações flexíveis, reutilizáveis e modulares. Com a capacidade de parametrizar a infraestrutura, definir valores locais reutilizáveis e exportar informações úteis, as variáveis tornam o gerenciamento da infraestrutura mais eficiente e dinâmico.
+
+    variable "regiao" {
+        type = string
+        default = "nyc1"
+        description = "Regiao de uso na Digital Ocean"
+    }
+
+# Outputs no Terraform
+
+Os **Outputs** no Terraform são usados para exportar valores do seu código de infraestrutura, tornando esses valores acessíveis após a execução de um plano (**apply**). Eles são especialmente úteis para expor informações importantes que você pode precisar usar posteriormente, como IDs de recursos, endereços IP, URLs, etc.
+
+# Definição de Outputs
+
+Outputs são definidos usando o bloco output. Cada output tem um nome e um valor associado, que é calculado com base nos recursos ou outras expressões.
+
+**Estrutura de um Bloco Output**
+
+Aqui está um exemplo básico de como definir um output:
+
+    output "instance_id" {
+        value = aws_instance.example.id
+    }
+
+Neste exemplo:
+
+- **instance_id** é o nome do output.
+
+- **value** é a expressão que define o valor do output, neste caso, a ID de uma instância EC2 criada anteriormente.
+
+# Atributos de Outputs
+
+1. **value**
+
+O atributo value é obrigatório e define o valor a ser exportado. Esse valor pode ser uma referência a um recurso, uma variável, uma expressão ou uma combinação deles.
+
+    output "instance_public_ip" {
+        value = aws_instance.example.public_ip
+    }
+
+2. **description**
+
+O atributo **description** é opcional e permite adicionar uma descrição que explica o propósito do output.
+
+    output "instance_public_ip" {
+        value       = aws_instance.example.public_ip
+        description = "O endereço IP público da instância EC2"
+    }
+
+3. **sensitive**
+
+O atributo **sensitive** é opcional e, quando definido como true, oculta o valor do output nos logs do Terraform, útil para informações sensíveis como senhas e tokens.
+
+    output "db_password" {
+        value     = aws_db_instance.example.password
+        sensitive = true
+    }
+
+# Utilização de Outputs
+
+Outputs podem ser utilizados de diversas maneiras:
+
+1. **Exibição no Terminal**: Após a execução do terraform apply, os valores dos outputs são exibidos no terminal.
+
+2. **Referência em Outros Módulos**: Outputs de um módulo podem ser referenciados em outro módulo, facilitando a comunicação entre diferentes partes da infraestrutura.
+
+3. **Integração com Scripts ou Ferramentas Externas**: Outputs podem ser utilizados por scripts ou ferramentas externas que executam comandos Terraform para capturar valores necessários para operações subsequentes.
+
+**Exemplo de Uso de Outputs em Módulos**
+
+Suponha que temos um módulo chamado network que cria uma VPC. Podemos definir um output para exportar a ID da VPC:
+
+    # Módulo network (modules/network/outputs.tf)
+    output "vpc_id" {
+        value = aws_vpc.main.id
+    }
+
+E então podemos utilizar esse output em outro módulo ou na configuração principal:
+
+    module "network" {
+        source = "./modules/network"
+    }
+
+    resource "aws_subnet" "main" {
+        vpc_id = module.network.vpc_id
+        cidr_block = "10.0.1.0/24"
+    }
+
+# Output de Vários Valores
+
+Você pode definir outputs que retornam listas ou mapas de valores. Isso é útil quando você deseja exportar coleções de informações.
+
+**Exemplo de Output de Lista**
+
+    output "instance_ids" {
+        value = aws_instance.example.*.id
+    }
+
+Neste exemplo, **aws_instance.example.*.id** retorna uma lista de IDs de todas as instâncias criadas pelo recurso aws_instance.example.
+
+**Exemplo de Output de Mapa**
+
+    output "instance_ips" {
+        value = { for instance in aws_instance.example : instance.id => instance.public_ip }
+    }
+
+Neste exemplo, estamos criando um mapa onde a chave é a ID da instância e o valor é o endereço IP público da instância.
+
+# Conclusão
+
+Outputs são uma parte essencial do Terraform para extrair e compartilhar informações importantes sobre os recursos gerenciados. Eles facilitam a integração entre módulos e com ferramentas externas, fornecendo uma maneira estruturada de expor e consumir dados de configuração. Usar outputs de maneira eficaz pode simplificar muito a gestão e automação da infraestrutura.
+
+    output "droplet_ip" {
+        value = digitalocean_droplet.maquina_labs_tf.ipv4_address
+    }
