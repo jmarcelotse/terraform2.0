@@ -9,3 +9,5 @@
 5. terraform plan
 
 6. terraform apply
+
+7. terraform output
