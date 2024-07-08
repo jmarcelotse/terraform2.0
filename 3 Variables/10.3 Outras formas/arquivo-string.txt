@@ -1,0 +1,7 @@
+Teste de variavel com arquivo
+
+Peso
+
+leve - variavel ambiente
+medio - tfvars
+Pesado - linha de comando ou var-file
