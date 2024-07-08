@@ -1,0 +1,1 @@
+O valor que eu vou usar de maquina é nyc1 - media - false
